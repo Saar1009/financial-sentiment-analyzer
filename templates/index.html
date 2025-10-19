@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Home - AI Stock Analyzer{% endblock %}
+
+{% block content %}
+<div class="container-card bg-white p-8 rounded-xl text-center">
+    <h1 class="text-4xl font-bold text-gray-800">Welcome to the AI Stock Analyzer</h1>
+    <p class="text-gray-600 mt-4 text-lg">
+        Your one-stop platform for analyzing market sentiment on your favorite stocks.
+    </p>
+    <div class="mt-8">
+        <a href="/search" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-300">
+            Start Analyzing Now
+        </a>
+    </div>
+</div>
+{% endblock %}

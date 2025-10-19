@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}My Wishlist{% endblock %}
+
+{% block content %}
+<div class="container-card bg-white p-6 md:p-8 rounded-xl">
+    <h1 class="text-3xl font-bold text-gray-800 border-b pb-4 mb-6">My Wishlist ❤️</h1>
+    
+    <div class="space-y-4">
+        {% if wishlist_items %}
+            {% for item in wishlist_items %}
+                <div class="flex justify-between items-center p-4 border rounded-lg hover:bg-gray-50 transition">
+                    <div>
+                        <p class="text-xl font-bold text-gray-900">{{ item.ticker }}</p>
+                        <p class="text-sm text-gray-500">Added on: {{ item.timestamp }}</p>
+                    </div>
+                    <div>
+                        <a href="/search?ticker={{ item.ticker }}" class="text-blue-500 hover:underline font-semibold mr-4">Analyze</a>
+                        <button class="text-red-500 hover:underline font-semibold">Remove</button>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-gray-600 text-center py-8">Your wishlist is empty. Add stocks from the 'Stock Search' page.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

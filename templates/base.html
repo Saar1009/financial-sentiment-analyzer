@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AI Stock Analyzer{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fc;
+        }
+        .container-card {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 0 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .sentiment-positive { color: #10b981; }
+        .sentiment-negative { color: #ef4444; }
+        .sentiment-neutral { color: #9ca3af; }
+        #wishlist-button.active svg {
+            fill: #ef4444;
+            stroke: #ef4444;
+        }
+        /* Style for the active nav link */
+        .nav-link-active {
+            color: #3b82f6; /* blue-500 */
+            border-bottom: 2px solid #3b82f6;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="/" class="font-bold text-xl text-gray-800">📊 Stock Analyzer</a>
+                
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="/" class="text-gray-600 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium">Home Page</a>
+                    <a href="/search" class="text-gray-600 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium">Stock Search</a>
+                    <a href="/wishlist" class="text-gray-600 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium">Wishlist</a>
+                    <a href="/portfolio" class="text-gray-600 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium">My Portfolio</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow p-4 md:p-8">
+        <div class="max-w-4xl mx-auto">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </main>
+    
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

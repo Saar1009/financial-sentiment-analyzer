@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Stock Search - AI Analyzer{% endblock %}
+
+{% block content %}
+    <header class="text-center mb-8">
+        <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900">
+            AI Stock Sentiment Analyzer
+        </h1>
+        <p class="text-gray-500 mt-2">Analyze news sentiment for a given stock ticker.</p>
+    </header>
+
+    <div class="container-card bg-white p-6 rounded-xl mb-8">
+        <div class="flex flex-col sm:flex-row gap-4">
+            <input 
+                type="text" 
+                id="tickerInput" 
+                placeholder="Enter Stock Ticker (e.g., AAPL)"
+                class="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-800"
+            >
+            <button 
+                id="analyzeButton" 
+                class="bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-150 ease-in-out sm:w-auto"
+            >
+                Analyze News
+            </button>
+            <button 
+                id="clearButton" 
+                class="bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg hover:bg-gray-500 transition duration-150 ease-in-out sm:w-auto"
+            >
+                Clear
+            </button>
+        </div>
+        <p id="error-message" class="text-red-500 mt-3 text-center"></p>
+    </div>
+
+    <div class="container-card bg-white p-6 rounded-xl" id="results-container">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Analysis Results</h2>
+        
+        <div id="summary-card" class="bg-gray-100 p-4 rounded-lg mb-6 hidden">
+            <div class="flex justify-between items-center">
+                <div>
+                    <p class="text-lg font-semibold text-gray-700">Overall Sentiment for <span id="summary-ticker" class="text-blue-600"></span>:</p>
+                    <div class="flex items-center mt-1">
+                        <span class="text-3xl font-bold mr-2" id="avg-score"></span>
+                        <span class="text-xl font-bold" id="avg-sentiment-text"></span>
+                    </div>
+                </div>
+                <button id="wishlist-button" title="Add to Wishlist" class="p-2 rounded-full hover:bg-gray-200 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 016.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div id="status-container" class="text-center py-8">
+            <p class="text-gray-500" id="initial-message">Enter a ticker and click 'Analyze News' to see results.</p>
+            <div id="loading-indicator" class="hidden">
+                <svg class="animate-spin h-8 w-8 text-blue-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                <p class="text-blue-600 mt-2">Analyzing...</p>
+            </div>
+        </div>
+
+        <div id="news-list" class="space-y-4"></div>
+    </div>
+
+    <div class="container-card bg-white p-6 rounded-xl mt-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">My Wishlist ❤️</h2>
+        <div id="wishlist-display" class="flex flex-wrap gap-3"></div>
+    </div>
+
+    <div class="container-card bg-white p-6 rounded-xl mt-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Search History</h2>
+        <div id="history-list"></div>
+    </div>
+{% endblock %}
