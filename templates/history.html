@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Search History{% endblock %}
+
+{% block content %}
+<div class="container-card bg-slate-700 p-6 md:p-8 rounded-xl shadow-lg"> 
+
+    <h1 class="text-3xl font-bold text-gray-100 border-b border-slate-600 pb-4 mb-6 text-center font-heading">Search History</h1> 
+    
+    <div id="history-list" class="overflow-x-auto">
+        {% if history_items %}
+            <table class="min-w-full divide-y divide-slate-400"> <thead class="bg-slate-600"> 
+                    <tr>
+                        <th class="px-6 py-3 text-left text-s font-large text-gray-100 uppercase tracking-wider">Ticker</th> 
+                        <th class="px-6 py-3 text-left text-s font-large text-gray-100 uppercase tracking-wider">Score</th>
+                        <th class="px-6 py-3 text-left text-s font-large text-gray-100 uppercase tracking-wider">Date</th>
+                    </tr>
+                </thead>
+
+                <tbody class="bg-slate-500 divide-y divide-slate-400"> 
+                    {% for item in history_items %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-left text-md font-bold text-black">{{ item.ticker }}</td> 
+                        <td class="px-6 py-4 whitespace-nowrap text-base font-bold {% if item.score > 0.1 %}text-green-700{% elif item.score < -0.1 %}text-red-700{% else %}text-gray-700{% endif %}"> {{ "%.4f"|format(item.score) }} 
+                            ({% if item.score > 0.1 %}Positive{% elif item.score < -0.1 %}Negative{% else %}Neutral{% endif %})
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-black">{{ item.timestamp }}</td> 
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="text-gray-300 text-center py-8">No search history found.</p> 
+        {% endif %}
+    </div>
+    
+    <div id="history-pagination" class="flex justify-between items-center mt-6 text-gray-100"> 
+    </div>
+</div>
+{% endblock %}

@@ -3,10 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}AI Stock Analyzer{% endblock %}</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <title>{% block title %}AI Stock Manager{% endblock %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Lobster&family=Smooch+Sans:wght@700&display=swap" rel="stylesheet">
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        /* Set the base font for the entire site */
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f7f9fc;
@@ -14,39 +22,57 @@
         .container-card {
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 0 10px -5px rgba(0, 0, 0, 0.04);
         }
-        .sentiment-positive { color: #10b981; }
-        .sentiment-negative { color: #ef4444; }
-        .sentiment-neutral { color: #9ca3af; }
+        
+        /* Utility classes for sentiment colors */
+        .sentiment-positive { color: #9ACD32; }
+        .sentiment-negative { color: #ff0000; }
+        .sentiment-neutral { color: #f7f9fc; }
+
+        /* Style for the active wishlist heart button */
         #wishlist-button.active svg {
             fill: #ef4444;
             stroke: #ef4444;
         }
-        /* Style for the active nav link */
         .nav-link-active {
-            color: #3b82f6; /* blue-500 */
+            color: #3b82f6; 
             border-bottom: 2px solid #3b82f6;
+        }
+        .font-logo {
+            font-family: 'Smooch Sans', sans-serif;
+            font-weight: 700; 
+            color: #fafafa; 
+        }
+        .font-nav-link {
+        font-family: 'Lobster', sans-serif; 
+        font-weight: 700; 
+        }
+        .font-heading {
+            font-family: 'Smooch Sans', sans-serif;
+            font-weight: 700;
+            color: #fafafa; 
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col bg-gray-900">
 
-    <nav class="bg-white shadow-md sticky top-0 z-50">
+    <nav class="bg-slate-700 shadow-md sticky top-0 z-50">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
-                <a href="/" class="font-bold text-xl text-gray-800">📊 Stock Analyzer</a>
+                <a href="/" class="text-4xl text-center font-logo">📊 Stock Manager</a>
                 
                 <div class="hidden md:flex items-center space-x-4">
-                    <a href="/" class="text-gray-600 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium">Home Page</a>
-                    <a href="/search" class="text-gray-600 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium">Stock Search</a>
-                    <a href="/wishlist" class="text-gray-600 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium">Wishlist</a>
-                    <a href="/portfolio" class="text-gray-600 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium">My Portfolio</a>
+                    <a href="/" class="font-nav-link text-gray-200 border-b border-t hover:text-white px-3 py-2 rounded-md text-base">Home Page</a>
+                    <a href="/search" class="font-nav-link text-gray-200 border-b border-t hover:text-white px-3 py-2 rounded-md text-base">Search</a>
+                    <a href="/wishlist" class="font-nav-link text-gray-200 border-b border-t hover:text-white px-3 py-2 rounded-md text-base">Wishlist</a>
+                    <a href="/portfolio" class="font-nav-link text-gray-200 border-b border-t hover:text-white px-3 py-2 rounded-md text-base">My Portfolio</a>
+                    <a href="/history" class="font-nav-link text-gray-200 border-b border-t hover:text-white px-3 py-2 rounded-md text-base">Search History</a>
                 </div>
             </div>
         </div>
     </nav>
 
     <main class="flex-grow p-4 md:p-8">
-        <div class="max-w-4xl mx-auto">
+        <div class="max-w-7xl mx-auto">
             {% block content %}
             {% endblock %}
         </div>
