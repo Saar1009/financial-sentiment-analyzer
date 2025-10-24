@@ -1,17 +1,58 @@
 {% extends "base.html" %}
 
-{% block title %}Home - AI Stock Analyzer{% endblock %}
+{% block title %}Home - AI Stock Manager{% endblock %}
 
 {% block content %}
-<div class="container-card bg-slate-700 p-8 rounded-xl text-center">
-    <h1 class="text-5xl border-b pb-4 mb-6 text-center font-heading">Welcome to the AI Stock Manager</h1>
-    <p class="text-gray-200 mt-4 text-lg">
-        Your one-stop platform for analyzing market sentiment on your favorite stocks.
-    </p>
-    <div class="mt-8">
-        <a href="/search" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-300">
-            Start Analyzing Now
-        </a>
+<div class="space-y-12 md:space-y-16">
+
+    <div class="text-center">
+        <h1 class="text-5xl md:text-6xl font-bold text-gray-100 font-heading mb-4">
+            Manage Your Portfolio
+        </h1>
+        <p class="text-xl text-gray-400">
+            Analyze sentiment, track performance, and compare stocks intelligently.
+        </p>
     </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+        <div class="container-card bg-slate-800 p-6 rounded-xl shadow-lg text-center flex flex-col items-center">
+            <h2 class="text-2xl font-heading text-gray-100 mb-4">Track Your Investments</h2>
+            <div class="bg-slate-700 p-2 rounded-lg shadow-md w-full">
+                 <img src="{{ url_for('static', filename='images/ExamplePortfolioTable.png') }}" alt="Portfolio Table Example" class="rounded mx-auto opacity-90 border border-slate-600 w-full">
+            </div>
+             <div class="text-4xl text-gray-400 mb-4">&darr;</div> 
+             <div class="text-gray-400 mt-4 text-sm">(Including Sector Allocation)</div>
+             <div class="bg-slate-700 p-2 rounded-lg shadow-md w-full mt-4">
+                 <img src="{{ url_for('static', filename='images/SectorPieChart.png') }}" alt="Sector Allocation Chart" class="rounded mx-auto opacity-90 border border-slate-600 w-full">
+            </div>
+        </div>
+
+        <div class="container-card bg-slate-800 p-6 rounded-xl shadow-lg text-center flex flex-col items-center">
+            <h2 class="text-2xl font-heading text-gray-100 mb-4">Compare Stocks From Wishlist</h2> 
+             <div class="bg-slate-700 p-2 rounded-lg shadow-md w-full">
+                 <img src="{{ url_for('static', filename='images/WishlistSelection.png') }}" alt="Wishlist Selection Example" class="rounded mx-auto opacity-90 border border-slate-600 w-full">
+            </div>
+             <div class="text-4xl text-gray-400 mb-4">&darr;</div>
+             <div class="text-gray-400 mt-4 text-sm">(To Detailed Comparison)</div>
+             <div class="bg-slate-700 p-2 rounded-lg shadow-md w-full mt-4">
+                 <img src="{{ url_for('static', filename='images/DetailedComparison.png') }}" alt="Comparison Table Example" class="rounded mx-auto opacity-90 border border-slate-600 w-full">
+            </div>
+        </div>
+
+        <div class="container-card bg-slate-800 p-6 rounded-xl shadow-lg text-center flex flex-col items-center">
+            <h2 class="text-2xl font-heading text-gray-100 mb-4">Search & Analyze Sentiment</h2>
+            <div class="bg-slate-700 p-2 rounded-lg shadow-md w-full">
+                 <img src="{{ url_for('static', filename='images/StockSearchInput.png') }}" alt="Search Input Example" class="rounded mx-auto opacity-90 border border-slate-600 w-full">
+            </div>
+            <div class="text-4xl text-gray-400 mb-4">&darr;</div>  
+             <div class="text-gray-400 mt-4 text-sm">(For Actionable Insights)</div>
+             <div class="bg-slate-700 p-2 rounded-lg shadow-md w-full mt-4">
+                 <img src="{{ url_for('static', filename='images/ActionableInsights.png') }}" alt="Analysis Results Example" class="rounded mx-auto opacity-90 border border-slate-600 w-full">
+            </div>
+        </div>
+
+    </div>
+
 </div>
 {% endblock %}

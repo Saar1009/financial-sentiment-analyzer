@@ -91,42 +91,91 @@ async function analyzeSentiment() {
         
         summaryCard.classList.remove('hidden');
 
-        // ---Wishlist Button Logic ---
-        const wishlistButton = document.getElementById('wishlist-button');
-        const currentWishlist = await fetchWishlist(); // Fetch and display the latest wishlist
+        // --- FINAL Corrected Wishlist Button Logic ---
+    const wishlistButton = document.getElementById('wishlist-button');
+    
+    // --- Step 1: Get current wishlist data (without updating display yet) ---
+    const currentWishlistData = await getWishlistData(); 
+    let isInWishlist = currentWishlistData.includes(ticker); 
 
-        // Set the initial state of the heart button
-        if (currentWishlist.includes(ticker)) {
-            wishlistButton.classList.add('active');
-        } else {
-            wishlistButton.classList.remove('active');
-        }
+    console.log("--- Initial Wishlist State ---"); // Debug
+    console.log("Ticker:", ticker); // Debug
+    console.log("Wishlist Data:", currentWishlistData); // Debug
+    console.log("Is ticker initially in wishlist?", isInWishlist); // Debug
 
-        // Add the click event listener for the heart button
-        wishlistButton.onclick = async () => {
-            // Prevent multiple clicks while request is in progress
-            wishlistButton.disabled = true;
-            try {
-                const response = await fetch('/api/wishlist/add', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ticker: ticker })
-                });
+    // --- Step 2: Set Initial Button Appearance ---
+    if (isInWishlist) {
+        wishlistButton.classList.add('active'); 
+        wishlistButton.title = "Remove from Wishlist";
+        console.log("Set initial state: ACTIVE"); // Debug
+    } else {
+        wishlistButton.classList.remove('active'); 
+        wishlistButton.title = "Add to Wishlist";
+        console.log("Set initial state: INACTIVE"); // Debug
+    }
+    wishlistButton.disabled = false; // Ensure button is enabled
 
-                if (response.ok) {
-                    wishlistButton.classList.add('active'); // Make the heart active
-                    await fetchWishlist(); // Refresh the displayed wishlist
-                } else {
-                    const errorData = await response.json();
-                    console.warn("Could not add to wishlist:", errorData.error);
-                }
-            } catch (e) {
-                console.error("Wishlist 'add' request failed:", e);
-            } finally {
-                wishlistButton.disabled = false; // Re-enable the button
+    // --- Step 3: Define the Click Handler ---
+    const wishlistClickHandler = async (event) => {
+        const button = event.currentTarget; 
+        // Re-check the state directly from the class list when clicked
+        const isCurrentlyActive = button.classList.contains('active'); 
+        
+        console.log("--- Button Clicked ---"); // Debug
+        console.log("Button is currently active?", isCurrentlyActive); // Debug
+        
+        const method = isCurrentlyActive ? 'DELETE' : 'POST';
+        const url = isCurrentlyActive ? `/api/wishlist/delete/${ticker}` : '/api/wishlist/add';
+        const body = isCurrentlyActive ? null : JSON.stringify({ ticker: ticker });
+        const headers = isCurrentlyActive ? {} : { 'Content-Type': 'application/json' };
+
+        console.log("Sending Request:", method, url); // Debug
+
+        button.disabled = true; // Disable during request
+
+        try {
+            const response = await fetch(url, { method, headers, body });
+
+            if (response.ok) {
+                console.log("Request successful, toggling state."); // Debug
+                // Toggle visual state and title AFTER successful request
+                button.classList.toggle('active');
+                const isNowActive = button.classList.contains('active');
+                button.title = isNowActive ? "Remove from Wishlist" : "Add to Wishlist";
+                
+                // --- Refresh the main wishlist display (using the split functions) ---
+                const updatedWishlist = await getWishlistData(); // Get fresh data
+                displayWishlist(updatedWishlist); // Update the display pills elsewhere
+                // --- End Refresh ---
+
+            } else {
+                const errorData = await response.json();
+                console.error(`Wishlist ${isCurrentlyActive ? 'delete' : 'add'} failed:`, errorData.error);
+                alert(`Error: ${errorData.error}`); 
             }
-        };
-        // --- End of Wishlist Logic ---
+        } catch (e) {
+            console.error("Wishlist request failed:", e);
+            alert(`Network or other error: ${e.message}`);
+        } finally {
+            button.disabled = false; // Re-enable button
+        }
+    };
+
+    // --- Step 4: Safely Attach the Listener ---
+    // Remove the old listener IF it exists, using the stored reference
+    if (wishlistButton._wishlistHandler) {
+        wishlistButton.removeEventListener('click', wishlistButton._wishlistHandler);
+        console.log("Removed previous click listener."); // Debug
+    }
+    
+    // Attach the new listener
+    wishlistButton.addEventListener('click', wishlistClickHandler);
+    // Store a reference to the newly added listener
+    wishlistButton._wishlistHandler = wishlistClickHandler; 
+    console.log("Added new click listener."); // Debug
+
+    // --- End of FINAL Corrected Wishlist Logic ---
+        
 
         fetchHistory().catch(e => console.error("History fetch failed:", e)); 
 
@@ -151,14 +200,16 @@ function clearResults() {
     const summaryCard = document.getElementById('summary-card');
     const initialMessage = document.getElementById('initial-message');
 
-    tickerInput.value = '';
-    errorMessage.classList.add('hidden');
-    summaryCard.classList.add('hidden');
-    newsList.innerHTML = '';
-    initialMessage.classList.remove('hidden');
+    if (tickerInput) tickerInput.value = '';
+    if (errorMessage) errorMessage.classList.add('hidden');
+    if (summaryCard) summaryCard.classList.add('hidden');
+    if (newsList) newsList.innerHTML = '';
+    if (initialMessage) initialMessage.classList.remove('hidden');
 
     fetchHistory().catch(e => console.error("History fetch failed during clear:", e));
-    fetchWishlist().catch(e => console.error("Wishlist fetch failed during clear:", e));
+    getWishlistData()
+        .then(wishlist => displayWishlist(wishlist))
+        .catch(e => console.error("Wishlist fetch/display failed during clear:", e));
 }
 
 /**
@@ -250,39 +301,49 @@ async function fetchHistory(page = 1) {
 }
 
 /**
- * Fetches the user's wishlist from the server and displays it.
- * @returns {Promise<string[]>} A promise that resolves to an array of tickers in the wishlist.
+ * Fetches the list of tickers from the server's wishlist API.
+ * @returns {Promise<string[]>} A promise that resolves to an array of tickers.
  */
-async function fetchWishlist() {
-    const wishlistDisplay = document.getElementById('wishlist-display');
-    if (!wishlistDisplay) {
-        return []; // Stop the function if the element doesn't exist
-    }
+async function getWishlistData() {
     try {
+        console.log("getWishlistData: Fetching /api/wishlist..."); // Debug
         const response = await fetch('/api/wishlist');
+        if (!response.ok) {
+            console.error("getWishlistData: Server responded with status", response.status);
+            return []; // Return empty on server error
+        }
         const data = await response.json();
-        
-        wishlistDisplay.innerHTML = ''; // Clear previous items
-        
         const wishlist = data.wishlist || [];
+        console.log("getWishlistData: Received wishlist:", wishlist); // Debug
+        return wishlist;
+    } catch (error) {
+        console.error("getWishlistData: Failed to fetch wishlist:", error);
+        return []; // Return empty on network/parsing error
+    }
+}
+
+/**
+ * Updates the wishlist display area on the page with pills.
+ * @param {string[]} wishlist - An array of tickers in the wishlist.
+ */
+function displayWishlist(wishlist) {
+    const wishlistDisplay = document.getElementById('wishlist-display');
+    // Only try to update if the display element actually exists on this page
+    if (wishlistDisplay) { 
+        wishlistDisplay.innerHTML = ''; // Clear previous items
         if (wishlist.length > 0) {
             wishlist.forEach(ticker => {
                 const tickerPill = document.createElement('span');
-                tickerPill.className = 'bg-red-100 text-red-800 text-sm font-semibold px-3 py-1 rounded-full cursor-pointer hover:bg-red-200';
+                // Using slate colors for dark theme
+                tickerPill.className = 'bg-slate-600 text-slate-100 text-xs font-semibold px-2.5 py-1 rounded-full cursor-default'; 
                 tickerPill.textContent = ticker;
                 wishlistDisplay.appendChild(tickerPill);
             });
         } else {
-            wishlistDisplay.innerHTML = '<p class="text-gray-500">Your wishlist is empty.</p>';
+            wishlistDisplay.innerHTML = '<p class="text-gray-400 text-sm">Wishlist is empty.</p>';
         }
-        return wishlist; // Return the list for other functions to use
-    } catch (error) {
-        console.error("Failed to fetch wishlist:", error);
-        wishlistDisplay.innerHTML = '<p class="text-red-500">Could not load wishlist.</p>';
-        return []; // Return empty array on error
     }
 }
-
 /**
  * Fetches current prices and calculates all dynamic portfolio values.
  */
@@ -488,20 +549,20 @@ async function fetchComparisonData(tickers) {
 
         // --- Build the HTML Table ---
         let tableHTML = `
-            <table class="min-w-full divide-y divide-gray-200">
+            <table class="min-w-full divide-y divide-gray-600 table-fixed">
                 <thead class="bg-slate-600">
                     <tr>
-                        <th class="px-4 py-3 text-left text-large font-bold text-black uppercase tracking-wider">Metric</th>
+                        <th class="w-1/4 px-4 py-3 text-left text-large font-bold text-black uppercase tracking-wider">Metric</th>
         `;
         // Add table headers for each ticker
         tickers.forEach(ticker => {
-            tableHTML += `<th class="px-4 py-3 text-left text-large font-semibold text-black uppercase tracking-wider">${ticker}</th>`;
+            tableHTML += `<th class="px-4 py-3 text-left text-large font-semibold text-black border-l border-black uppercase tracking-wider border-r border-slate-900">${ticker}</th>`;
         });
-        tableHTML += `</tr></thead><tbody class="bg-slate-500 divide-y divide-gray-200">`;
+        tableHTML += `</tr></thead><tbody class="bg-slate-500 divide-y divide-gray-600">`;
 
         // Add table rows for each metric
         metrics.forEach(metric => {
-            tableHTML += `<tr><td class="w-1/4 px-4 py-3 whitespace-nowrap font-medium text-gray-100 text-left border-r border-slate-600">${metric}</td>`;
+            tableHTML += `<tr><td class="w-1/4 px-4 py-3 whitespace-nowrap font-medium text-gray-100 text-left border-r border-black">${metric}</td>`;
             
             tickers.forEach(ticker => {
                 const value = data[ticker]?.[metric];
@@ -561,7 +622,7 @@ async function fetchComparisonData(tickers) {
                     }
                 }
                 
-                tableHTML += `<td class="px-6 py-4 whitespace-nowrap text-left ${cellClass}">${displayValue}</td>`;
+                tableHTML += `<td class="px-6 py-4 whitespace-nowrap text-left ${cellClass} border-r border-slate-600">${displayValue}</td>`;
             });
             tableHTML += `</tr>`;
         });
@@ -621,6 +682,15 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add listener for the compare button click
         compareButton.addEventListener('click', () => {
             if (selectedTickers.length >= 2) {
+                if (wishlistContainer) {
+                    wishlistContainer.classList.add('hidden'); 
+                }
+
+                comparisonResultsDiv.classList.remove('hidden');
+                comparisonTableContainer.innerHTML = '<p class="text-center text-gray-500 py-4">Loading comparison data...</p>';
+
+                compareButton.classList.add('hidden');
+
                 // Call the function to fetch and display comparison data
                 fetchComparisonData(selectedTickers);
             }
@@ -729,7 +799,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- General functions to run on page load ---
     fetchHistory().catch(e => console.error("Initial history fetch failed:", e));
-    fetchWishlist().catch(e => console.error("Initial wishlist fetch failed:", e));
+    getWishlistData()
+        .then(wishlist => displayWishlist(wishlist))
+        .catch(e => console.error("Initial wishlist fetch/display failed:", e));
 
     // Fetch live prices but only if the portfolio table exists on the page
     if (portfolioTableBody) {
